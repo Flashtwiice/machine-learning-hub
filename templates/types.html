@@ -1,0 +1,169 @@
+﻿{% extends "base.html" %}
+
+{% block title %}
+Types of Machine Learning
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+
+        <span class="badge bg-primary">
+            MACHINE LEARNING TYPES
+        </span>
+
+        <h1 class="display-5 fw-bold mt-2">
+
+            Types of Machine Learning
+
+        </h1>
+
+        <p class="lead text-muted">
+
+            Different approaches for teaching machines.
+
+        </p>
+
+    </div>
+
+
+    <div class="row g-4">
+
+
+        <div class="col-lg-6">
+
+            <div class="type-card">
+
+                <div class="icon-circle">
+
+                    <i class="bi bi-person-check"></i>
+
+                </div>
+
+                <h2>
+                    Supervised Learning
+                </h2>
+
+                <p>
+
+                    The algorithm learns from labeled data.
+                    Each training example contains an input
+                    and a known target.
+
+                </p>
+
+                <span class="badge bg-primary">
+                    Classification
+                </span>
+
+                <span class="badge bg-secondary">
+                    Regression
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-6">
+
+            <div class="type-card">
+
+                <div class="icon-circle">
+
+                    <i class="bi bi-diagram-3"></i>
+
+                </div>
+
+                <h2>
+                    Unsupervised Learning
+                </h2>
+
+                <p>
+
+                    The algorithm works with unlabeled data
+                    and discovers hidden patterns or groups.
+
+                </p>
+
+                <span class="badge bg-success">
+                    Clustering
+                </span>
+
+                <span class="badge bg-secondary">
+                    Dimensionality Reduction
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-6">
+
+            <div class="type-card">
+
+                <div class="icon-circle">
+
+                    <i class="bi bi-controller"></i>
+
+                </div>
+
+                <h2>
+                    Reinforcement Learning
+                </h2>
+
+                <p>
+
+                    An agent learns by interacting with an
+                    environment and receiving rewards or penalties.
+
+                </p>
+
+                <span class="badge bg-warning text-dark">
+                    Rewards
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-6">
+
+            <div class="type-card">
+
+                <div class="icon-circle">
+
+                    <i class="bi bi-collection"></i>
+
+                </div>
+
+                <h2>
+                    Semi-Supervised Learning
+                </h2>
+
+                <p>
+
+                    Combines a small amount of labeled data
+                    with a larger amount of unlabeled data.
+
+                </p>
+
+                <span class="badge bg-info">
+                    Hybrid Approach
+                </span>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+{% endblock %}

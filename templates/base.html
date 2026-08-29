@@ -1,0 +1,282 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}
+        Machine Learning Hub
+        {% endblock %}
+    </title>
+
+
+    <!-- Bootstrap 5 -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+
+    <!-- Bootstrap Icons -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+
+    <!-- Custom CSS -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+
+<!-- ========================================================
+     NAVBAR
+========================================================= -->
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+
+    <div class="container">
+
+        <a class="navbar-brand fw-bold" href="/">
+
+            <i class="bi bi-cpu"></i>
+
+            Machine Learning Hub
+
+        </a>
+
+
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarMenu"
+            aria-controls="navbarMenu"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
+
+            <span class="navbar-toggler-icon"></span>
+
+        </button>
+
+
+        <div
+            class="collapse navbar-collapse"
+            id="navbarMenu">
+
+            <ul class="navbar-nav ms-auto">
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="/">
+                        Home
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="/concepts">
+                        Concepts
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="/how-it-works">
+                        How It Works
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="/types">
+                        Types
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="/algorithms">
+                        Algorithms
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="/examples">
+                        Examples
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a class="nav-link" href="/trends">
+                        Trends
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<!-- ========================================================
+     MAIN CONTENT
+========================================================= -->
+
+<main>
+
+{% block content %}
+
+{% endblock %}
+
+</main>
+
+
+<!-- ========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="bg-dark text-white mt-5">
+
+    <div class="container py-5">
+
+        <div class="row">
+
+
+            <div class="col-md-6">
+
+                <h4>
+
+                    <i class="bi bi-cpu"></i>
+
+                    Machine Learning Hub
+
+                </h4>
+
+                <p class="text-secondary">
+
+                    An educational website designed to explain
+                    Machine Learning concepts, algorithms,
+                    applications and current trends.
+
+                </p>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <h5>
+                    Explore
+                </h5>
+
+                <ul class="list-unstyled">
+
+                    <li class="mb-2">
+
+                        <a href="/concepts"
+                           class="footer-link">
+
+                            Core Concepts
+
+                        </a>
+
+                    </li>
+
+
+                    <li class="mb-2">
+
+                        <a href="/types"
+                           class="footer-link">
+
+                            Types of Machine Learning
+
+                        </a>
+
+                    </li>
+
+
+                    <li class="mb-2">
+
+                        <a href="/algorithms"
+                           class="footer-link">
+
+                            Algorithms
+
+                        </a>
+
+                    </li>
+
+
+                    <li class="mb-2">
+
+                        <a href="/examples"
+                           class="footer-link">
+
+                            Real-world Examples
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+
+        </div>
+
+
+        <hr>
+
+
+        <p class="text-center text-secondary mb-0">
+
+            Â© 2026 Machine Learning Hub
+
+        </p>
+
+    </div>
+
+</footer>
+
+
+<!--
+    No custom JavaScript is required.
+    Bootstrap CSS is used for the interface.
+-->
+
+</body>
+
+</html>
