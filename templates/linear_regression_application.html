@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}
+Linear Regression - Application
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+
+        <span class="badge bg-primary">
+            SUPERVISED LEARNING &middot; APPLICATION
+        </span>
+
+        <h1 class="display-5 fw-bold mt-2">
+            Predicting Monthly Water Consumption
+        </h1>
+
+        <p class="lead text-muted">
+            A Simple Linear Regression model trained with scikit-learn.
+        </p>
+
+    </div>
+
+
+    <!-- 1. PROBLEM CONTEXT -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-info-circle"></i> 1. Problem Context</h4>
+        <p>
+            Water utility companies need to estimate how much water a
+            household will consume in a month. The phenomenon analyzed here
+            is the relationship between the <strong>number of people living
+            in a household</strong> and its <strong>monthly water
+            consumption</strong>. The data represent household-level
+            observations collected over time. The purpose of applying Linear
+            Regression is to learn this relationship automatically from data
+            and use it to predict the expected monthly water consumption
+            (in cubic meters) for a household with a given number of
+            occupants, instead of relying on rough manual estimates.
+        </p>
+    </div>
+
+
+    <!-- 2. VARIABLES -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h5><i class="bi bi-box-arrow-in-right"></i> Independent Variable (X)</h5>
+                <p class="mb-1"><strong>Number of occupants</strong></p>
+                <p class="text-muted mb-0">Unit: people per household</p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h5><i class="bi bi-box-arrow-right"></i> Dependent Variable (Y)</h5>
+                <p class="mb-1"><strong>Monthly water consumption</strong></p>
+                <p class="text-muted mb-0">Unit: cubic meters (m³) per month</p>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- 3. DATASET -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-database"></i> 3. Dataset</h4>
+        <div class="row g-3">
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Number of Records</div>
+                <div class="fs-4 fw-bold text-primary">{{ record_count }}</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Independent Variable</div>
+                <div class="fw-semibold">Occupants</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Dependent Variable</div>
+                <div class="fw-semibold">Water Consumption (m³)</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Source</div>
+                <div class="fw-semibold">Simulated dataset built for this course activity</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 4. DATA VISUALIZATION -->
+    <div class="concept-card mb-4 text-center">
+        <h4 class="text-start"><i class="bi bi-graph-up-arrow"></i> 4. Data Visualization</h4>
+        <img
+            src="data:image/png;base64,{{ chart }}"
+            alt="Scatter plot of household occupants vs monthly water consumption, with the fitted regression line"
+            class="img-fluid rounded mt-3 border">
+    </div>
+
+
+    <!-- 5 & 6. MODEL + PREDICTION FORM -->
+    <div class="concept-card">
+        <h4><i class="bi bi-cpu"></i> 5 &amp; 6. Try the Model: Prediction Form</h4>
+        <p class="text-muted">
+            Enter a number of occupants and the trained scikit-learn Linear
+            Regression model will predict the expected monthly water
+            consumption.
+        </p>
+
+        <form method="post" class="row g-3 align-items-end" novalidate>
+
+            <div class="col-md-6">
+                <label for="occupants" class="form-label">Number of Occupants</label>
+                <input
+                    type="number"
+                    step="any"
+                    min="1"
+                    class="form-control {% if error %}is-invalid{% endif %}"
+                    id="occupants"
+                    name="occupants"
+                    placeholder="e.g. 4"
+                    required>
+                {% if error %}
+                <div class="invalid-feedback">
+                    {{ error }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-magic"></i> Predict
+                </button>
+            </div>
+
+        </form>
+
+        {% if prediction is not none %}
+        <div class="alert alert-success mt-4 mb-0">
+            <i class="bi bi-check-circle"></i>
+            Estimated monthly water consumption:
+            <strong>{{ prediction }} m³</strong>
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,3 +1,6 @@
+import matplotlib
+matplotlib.use("Agg")  # non-interactive backend: safe to run inside Flask's request threads
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import io
@@ -14,10 +17,38 @@ df = pd.DataFrame(data)
 x= df[["num_habitantes"]]
 y= df[["consumo_agua_mensual"]]
 
+RECORD_COUNT = len(df)
 
 model = LinearRegression()
 model.fit(x,y)
 
 def calculateConsumo(habitantes):
-  result = model.predict([[habitantes]])[0]
+  input_df = pd.DataFrame({"num_habitantes": [habitantes]})
+  result = model.predict(input_df)[0][0]
   return result
+
+
+def generate_plot():
+    """Scatter plot of the dataset plus the fitted regression line, returned as a base64 PNG."""
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    ax.scatter(x, y, alpha=0.5, color="#0d6efd", label="Household records")
+
+    x_line = pd.DataFrame(
+        {"num_habitantes": [x["num_habitantes"].min(), x["num_habitantes"].max()]}
+    )
+    y_line = model.predict(x_line)
+    ax.plot(x_line, y_line, color="#dc3545", linewidth=2.5, label="Regression line")
+
+    ax.set_title("Monthly Water Consumption vs. Number of Occupants")
+    ax.set_xlabel("Number of Occupants (people per household)")
+    ax.set_ylabel("Monthly Water Consumption (m³)")
+    ax.legend()
+    fig.tight_layout()
+
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format="png")
+    plt.close(fig)
+    buffer.seek(0)
+
+    return base64.b64encode(buffer.read()).decode("utf-8")
