@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ case.title }}
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+
+        <span class="badge bg-primary">
+            USE CASE {{ case_id }}
+        </span>
+
+        <h1 class="display-5 fw-bold mt-2">
+            <i class="bi {{ case.icon }}"></i>
+            {{ case.title }}
+        </h1>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <div class="col-lg-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-info-circle"></i> Problem Context</h4>
+                <p>{{ case.context }}</p>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-database"></i> Data That Could Be Used</h4>
+                <ul>
+                    {% for item in case.data %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-bullseye"></i> What the Model Should Do</h4>
+                <p>{{ case.target }}</p>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-diagram-3"></i> Type of Machine Learning</h4>
+                <p>{{ case.ml_type | safe }}</p>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="concept-card">
+                <h4><i class="bi bi-graph-up-arrow"></i> Potential Benefit</h4>
+                <p class="mb-0">{{ case.benefit }}</p>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="d-flex justify-content-between mt-5">
+
+        {% if case_id > 1 %}
+        <a href="/use-cases/{{ case_id - 1 }}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Previous Use Case
+        </a>
+        {% else %}
+        <span></span>
+        {% endif %}
+
+        {% if case_id < 4 %}
+        <a href="/use-cases/{{ case_id + 1 }}" class="btn btn-primary">
+            Next Use Case <i class="bi bi-arrow-right"></i>
+        </a>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}
