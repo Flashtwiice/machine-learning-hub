@@ -1,10 +1,6 @@
-﻿from flask import Flask, render_template
-import LinearRegressionGrades
+﻿from flask import Flask, render_template ,request
+import LinearRegressionGrades , LinearConsumo
 app = Flask(__name__)
-
-
-
-
 
 @app.route("/")
 def home():
@@ -41,10 +37,21 @@ def trends():
     return render_template("trends.html")
 
 
-@app.route("/LinearRegression/")
+@app.route("/LinearRegression/", methods = ["GET","POST"])
 def LRregessionGrades():
-    calculateGradeResult = LinearRegressionGrades.calculateGrade(5)
-    return str(calculateGradeResult)
+    calculateGradeResult = None
+    if request.method == "POST":
+        hours= float(request.form["hours"])
+        calculateGradeResult = LinearRegressionGrades.calculateGrade(hours)
+    return render_template("temoLinearRegression.html", result = calculateGradeResult) 
+
+@app.route("/LinearConsumo/", methods = ["GET","POST"])
+def RegressionConsumo():
+    calculateConsumo = None
+    if request.method == "POST":
+        habitantes = float(request.form["habitantes"])
+        calculateConsumo = LinearConsumo.calculateConsumo(habitantes)
+    return render_template("LinearConsumo.html", result = calculateConsumo) 
 
 if __name__ == "__main__":
     app.run(
@@ -52,3 +59,4 @@ if __name__ == "__main__":
         host="127.0.0.1",
         port=5000
     )
+
