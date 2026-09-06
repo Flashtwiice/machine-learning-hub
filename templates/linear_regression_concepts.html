@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}
+Linear Regression - Concepts
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+
+        <span class="badge bg-primary">
+            SUPERVISED LEARNING
+        </span>
+
+        <h1 class="display-5 fw-bold mt-2">
+            Linear Regression &mdash; Concepts
+        </h1>
+
+        <p class="lead text-muted">
+            The fundamentals you need before looking at the practical application.
+        </p>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-graph-up"></i> What is Linear Regression?</h4>
+                <p>
+                    Linear Regression is a supervised Machine Learning algorithm
+                    that models the relationship between two quantitative
+                    variables by fitting a straight line to the observed data.
+                    It is one of the simplest and most widely used algorithms
+                    for making numeric predictions.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-list-check"></i> What Problems Can It Solve?</h4>
+                <p>
+                    It solves <strong>regression problems</strong>: any task
+                    where the goal is to predict a continuous numeric value,
+                    such as prices, temperatures, consumption, sales, or scores,
+                    based on one input variable.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-box-arrow-in-right"></i> Independent Variable (X)</h4>
+                <p>
+                    The <strong>independent variable</strong> is the input used
+                    by the model to make a prediction. It is also called the
+                    predictor or explanatory variable.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-box-arrow-right"></i> Dependent Variable (Y)</h4>
+                <p>
+                    The <strong>dependent variable</strong> is the value the
+                    model tries to predict. Its value "depends on" the
+                    independent variable.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-arrows-collapse"></i> Relationship Between Variables</h4>
+                <p>
+                    Simple Linear Regression assumes there is a
+                    <strong>linear relationship</strong> between X and Y: as X
+                    increases or decreases, Y tends to change proportionally.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-slash-lg"></i> Regression Line</h4>
+                <p>
+                    The model learns the line
+                    <code>y = m&middot;x + b</code> that best fits the training
+                    data, where <code>m</code> is the slope and <code>b</code>
+                    is the intercept. This line summarizes the trend in the data.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-bullseye"></i> Prediction</h4>
+                <p>
+                    Once trained, the model can take a new, unseen value of X
+                    and use the regression line to estimate the corresponding
+                    value of Y.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-lightbulb"></i> A Simple Example</h4>
+                <p>
+                    If a company knows that, on average, monthly water use
+                    grows with the number of people living in a house, it can
+                    use Linear Regression to estimate the water consumption of
+                    a new household just by knowing how many people live there.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="text-center mt-5">
+        <a href="/linear-regression/application" class="btn btn-primary btn-lg">
+            See the Practical Application <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

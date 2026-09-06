@@ -1,10 +1,8 @@
-﻿from flask import Flask, render_template
-import LinearRegressionGrades
+﻿from flask import Flask, render_template, request, abort
+import LinearRegressionGrades, LinearConsumo
+from use_cases import USE_CASES
+
 app = Flask(__name__)
-
-
-
-
 
 @app.route("/")
 def home():
@@ -41,10 +39,64 @@ def trends():
     return render_template("trends.html")
 
 
-@app.route("/LinearRegression/")
+@app.route("/LinearRegression/", methods = ["GET","POST"])
 def LRregessionGrades():
-    calculateGradeResult = LinearRegressionGrades.calculateGrade(5)
-    return str(calculateGradeResult)
+    calculateGradeResult = None
+    if request.method == "POST":
+        hours= float(request.form["hours"])
+        calculateGradeResult = LinearRegressionGrades.calculateGrade(hours)
+    return render_template("temoLinearRegression.html", result = calculateGradeResult) 
+
+@app.route("/LinearConsumo/", methods = ["GET","POST"])
+def RegressionConsumo():
+    calculateConsumo = None
+    if request.method == "POST":
+        habitantes = float(request.form["habitantes"])
+        calculateConsumo = LinearConsumo.calculateConsumo(habitantes)
+    return render_template("LinearConsumo.html", result = calculateConsumo)
+
+
+@app.route("/use-cases/<int:case_id>")
+def use_case(case_id):
+    case = USE_CASES.get(case_id)
+    if case is None:
+        abort(404)
+    return render_template("use_case.html", case=case, case_id=case_id)
+
+
+@app.route("/linear-regression/concepts")
+def linear_regression_concepts():
+    return render_template("linear_regression_concepts.html")
+
+
+@app.route("/linear-regression/application", methods=["GET", "POST"])
+def linear_regression_application():
+    prediction = None
+    error = None
+
+    if request.method == "POST":
+        raw_value = request.form.get("occupants", "").strip()
+
+        if not raw_value:
+            error = "Please enter a value for the number of occupants."
+        else:
+            try:
+                occupants = float(raw_value)
+                if occupants <= 0:
+                    error = "The number of occupants must be a positive number."
+                else:
+                    prediction = round(float(LinearConsumo.calculateConsumo(occupants)), 2)
+            except ValueError:
+                error = "Please enter a valid numeric value."
+
+    return render_template(
+        "linear_regression_application.html",
+        prediction=prediction,
+        error=error,
+        record_count=LinearConsumo.RECORD_COUNT,
+        chart=LinearConsumo.generate_plot(),
+    )
+
 
 if __name__ == "__main__":
     app.run(
@@ -52,3 +104,4 @@ if __name__ == "__main__":
         host="127.0.0.1",
         port=5000
     )
+
