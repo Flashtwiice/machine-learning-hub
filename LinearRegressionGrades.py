@@ -19,5 +19,5 @@ model = LinearRegression()
 model.fit(x,y)
 
 def calculateGrade(hours):
-  result = model.predict([[hours]])[0]
+  result = model.predict([[hours]])[0][0]
   return result
