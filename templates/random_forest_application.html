@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}
+Random Forest - Application
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+
+        <span class="badge bg-primary">
+            SUPERVISED LEARNING &middot; APPLICATION
+        </span>
+
+        <h1 class="display-5 fw-bold mt-2">
+            Customer Purchase Prediction
+        </h1>
+
+        <p class="lead text-muted">
+            A Random Forest classifier trained with scikit-learn.
+        </p>
+
+    </div>
+
+
+    <!-- 1. PROBLEM CONTEXT -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-info-circle"></i> 1. Problem Context</h4>
+        <p>
+            An online store wants to know, before a visitor leaves the site,
+            whether they are likely to make a purchase. The data represent
+            individual site visits, each described by the visitor's age,
+            annual income, and time spent browsing the site. The purpose of
+            applying a Random Forest is to combine these three variables and
+            classify a visitor as <strong>Will Purchase</strong> or
+            <strong>Will Not Purchase</strong>.
+        </p>
+    </div>
+
+
+    <!-- 2. DATASET & VARIABLES -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-database"></i> 2. Dataset</h4>
+        <div class="row g-3">
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Number of Records</div>
+                <div class="fs-4 fw-bold text-primary">{{ record_count }}</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Independent Variables</div>
+                <div class="fw-semibold">Age, Annual Income, Time on Site</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Target Variable</div>
+                <div class="fw-semibold">Purchased (binary)</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Source</div>
+                <div class="fw-semibold">Simulated dataset built for this course activity</div>
+            </div>
+        </div>
+        <hr>
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <span class="badge bg-secondary">X1</span>
+                Age &mdash; years
+            </div>
+            <div class="col-md-4">
+                <span class="badge bg-secondary">X2</span>
+                Annual Income &mdash; thousands of USD
+            </div>
+            <div class="col-md-4">
+                <span class="badge bg-secondary">X3</span>
+                Time on Site &mdash; minutes
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <span class="badge bg-danger">Class 0</span>
+                Will Not Purchase
+            </div>
+            <div class="col-md-6">
+                <span class="badge bg-success">Class 1</span>
+                Will Purchase
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 3. DATA VISUALIZATION -->
+    <div class="concept-card mb-4 text-center">
+        <h4 class="text-start"><i class="bi bi-graph-up-arrow"></i> 3. Data Visualization</h4>
+        <img
+            src="data:image/png;base64,{{ chart }}"
+            alt="Scatter plot of customers by income and time on site, colored by purchase class, alongside a feature importance chart"
+            class="img-fluid rounded mt-3 border">
+    </div>
+
+
+    <!-- 4. TRAIN/TEST SPLIT -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-scissors"></i> 4. Train / Test Split</h4>
+        <div class="row text-center g-3">
+            <div class="col-md-6">
+                <div class="fs-3 fw-bold text-primary">{{ train_count }}</div>
+                <div class="text-muted">Training records (80%)</div>
+            </div>
+            <div class="col-md-6">
+                <div class="fs-3 fw-bold text-danger">{{ test_count }}</div>
+                <div class="text-muted">Testing records (20%)</div>
+            </div>
+        </div>
+        <p class="text-muted mt-3 mb-0">
+            The split was performed with scikit-learn's
+            <code>train_test_split()</code>, stratified by class.
+        </p>
+    </div>
+
+
+    <!-- 5 & 6. MODEL + CLASSIFICATION FORM -->
+    <div class="concept-card">
+        <h4><i class="bi bi-cpu"></i> 5 &amp; 6. Try the Model: Classification Form</h4>
+        <p class="text-muted">
+            Enter the three visitor characteristics and the trained Random
+            Forest model will classify the customer.
+        </p>
+
+        <form method="post" class="row g-3 align-items-end" novalidate>
+
+            <div class="col-md-3">
+                <label for="age" class="form-label">Age (years)</label>
+                <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    class="form-control {% if error %}is-invalid{% endif %}"
+                    id="age"
+                    name="age"
+                    placeholder="e.g. 34"
+                    required>
+            </div>
+
+            <div class="col-md-3">
+                <label for="income" class="form-label">Annual Income (k USD)</label>
+                <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    class="form-control {% if error %}is-invalid{% endif %}"
+                    id="income"
+                    name="income"
+                    placeholder="e.g. 55"
+                    required>
+            </div>
+
+            <div class="col-md-3">
+                <label for="time_on_site" class="form-label">Time on Site (min)</label>
+                <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    class="form-control {% if error %}is-invalid{% endif %}"
+                    id="time_on_site"
+                    name="time_on_site"
+                    placeholder="e.g. 12"
+                    required>
+            </div>
+
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-magic"></i> Classify
+                </button>
+            </div>
+
+            {% if error %}
+            <div class="col-12">
+                <div class="alert alert-danger mb-0 py-2">{{ error }}</div>
+            </div>
+            {% endif %}
+
+        </form>
+
+        {% if result is not none %}
+        <div class="alert {% if result.label == 1 %}alert-success{% else %}alert-secondary{% endif %} mt-4 mb-0">
+            <i class="bi bi-check-circle"></i>
+            Predicted class: <strong>{{ result.class_name }}</strong>
+            (probability: {{ result.probability }}%)
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

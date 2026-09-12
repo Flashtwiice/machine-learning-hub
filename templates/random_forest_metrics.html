@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}
+Random Forest - Evaluation Metrics
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+
+        <span class="badge bg-primary">
+            SUPERVISED LEARNING &middot; EVALUATION
+        </span>
+
+        <h1 class="display-5 fw-bold mt-2">
+            Random Forest &mdash; Evaluation Metrics
+        </h1>
+
+        <p class="lead text-muted">
+            Performance measured on the 20% test set ({{ test_count }} records) held out during training.
+        </p>
+
+    </div>
+
+
+    <!-- CONFUSION MATRIX -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-grid-3x3"></i> Confusion Matrix</h4>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered text-center mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th></th>
+                        <th>Predicted: Will Not Purchase (0)</th>
+                        <th>Predicted: Will Purchase (1)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th class="table-dark">Actual: Will Not Purchase (0)</th>
+                        <td class="bg-success bg-opacity-25">
+                            TN = {{ metrics.tn }}
+                        </td>
+                        <td class="bg-danger bg-opacity-25">
+                            FP = {{ metrics.fp }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Actual: Will Purchase (1)</th>
+                        <td class="bg-danger bg-opacity-25">
+                            FN = {{ metrics.fn }}
+                        </td>
+                        <td class="bg-success bg-opacity-25">
+                            TP = {{ metrics.tp }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row g-3 mt-1">
+            <div class="col-md-3 col-6">
+                <div class="small text-muted">True Positives (TP)</div>
+                <div class="fw-bold">{{ metrics.tp }}</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="small text-muted">True Negatives (TN)</div>
+                <div class="fw-bold">{{ metrics.tn }}</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="small text-muted">False Positives (FP)</div>
+                <div class="fw-bold">{{ metrics.fp }}</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="small text-muted">False Negatives (FN)</div>
+                <div class="fw-bold">{{ metrics.fn }}</div>
+            </div>
+        </div>
+
+        <p class="text-muted mt-3 mb-0">
+            <strong>Interpretation:</strong>
+            {{ metrics.tp }} customers who purchased were correctly identified
+            (TP), and {{ metrics.tn }} non-buyers were correctly identified
+            (TN). The model generated {{ metrics.fp }} false alarms (FP:
+            predicted a purchase that did not happen) and missed
+            {{ metrics.fn }} actual buyers (FN) &mdash; in a marketing context,
+            false positives mean wasted promotional effort, while false
+            negatives mean missed sales opportunities.
+        </p>
+    </div>
+
+
+    <!-- CLASSIFICATION METRICS -->
+    <div class="row g-4">
+
+        <div class="col-md-3 col-6">
+            <div class="concept-card text-center h-100">
+                <div class="text-muted small">Accuracy</div>
+                <div class="display-6 fw-bold text-primary">{{ metrics.accuracy }}%</div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="concept-card text-center h-100">
+                <div class="text-muted small">Precision</div>
+                <div class="display-6 fw-bold text-primary">{{ metrics.precision }}%</div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="concept-card text-center h-100">
+                <div class="text-muted small">Recall</div>
+                <div class="display-6 fw-bold text-primary">{{ metrics.recall }}%</div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="concept-card text-center h-100">
+                <div class="text-muted small">F1-Score</div>
+                <div class="display-6 fw-bold text-primary">{{ metrics.f1 }}%</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="concept-card mt-4">
+        <h5><i class="bi bi-lightbulb"></i> Interpretation</h5>
+        <p class="mb-0">
+            The Random Forest model correctly classifies {{ metrics.accuracy }}%
+            of visitors in the test set. Of all visitors it predicted would
+            purchase, {{ metrics.precision }}% actually did (precision), and it
+            captured {{ metrics.recall }}% of all real buyers in the test set
+            (recall). The F1-score of {{ metrics.f1 }}% summarizes this
+            trade-off in a single number.
+        </p>
+    </div>
+
+    <div class="concept-card mt-4">
+        <h5><i class="bi bi-arrow-left-right"></i> Comparison with Logistic Regression</h5>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Model</th>
+                        <th>Accuracy</th>
+                        <th>Precision</th>
+                        <th>Recall</th>
+                        <th>F1-Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-start">Logistic Regression (Diabetes)</td>
+                        <td>{{ lr_metrics.accuracy }}%</td>
+                        <td>{{ lr_metrics.precision }}%</td>
+                        <td>{{ lr_metrics.recall }}%</td>
+                        <td>{{ lr_metrics.f1 }}%</td>
+                    </tr>
+                    <tr>
+                        <td class="text-start">Random Forest (Purchase)</td>
+                        <td>{{ metrics.accuracy }}%</td>
+                        <td>{{ metrics.precision }}%</td>
+                        <td>{{ metrics.recall }}%</td>
+                        <td>{{ metrics.f1 }}%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted mt-3 mb-0">
+            The two models solve different problems with different datasets,
+            so the comparison is illustrative rather than a direct contest:
+            Logistic Regression reaches higher accuracy here in part because
+            its single-feature diabetes problem is more linearly separable,
+            while the Random Forest tackles a harder, multi-feature purchase
+            decision.
+        </p>
+    </div>
+
+</div>
+
+{% endblock %}
