@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}
+Logistic Regression - Application
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+
+        <span class="badge bg-primary">
+            SUPERVISED LEARNING &middot; APPLICATION
+        </span>
+
+        <h1 class="display-5 fw-bold mt-2">
+            Diabetes Risk Classification
+        </h1>
+
+        <p class="lead text-muted">
+            A Binary Logistic Regression model trained with scikit-learn.
+        </p>
+
+    </div>
+
+
+    <!-- 1. PROBLEM CONTEXT -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-info-circle"></i> 1. Problem Context</h4>
+        <p>
+            Clinics use blood glucose readings during routine checkups to flag
+            patients who may need further diabetes screening. The data
+            represent individual patients, each with a measured blood glucose
+            level and a diagnosis. The purpose of applying Logistic Regression
+            is to learn the relationship between glucose level and diabetes
+            status, and use it to classify a new patient as
+            <strong>Diabetic</strong> or <strong>Non-Diabetic</strong> based on
+            a single glucose reading.
+        </p>
+    </div>
+
+
+    <!-- 2. DATASET & VARIABLES -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-database"></i> 2. Dataset</h4>
+        <div class="row g-3">
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Number of Records</div>
+                <div class="fs-4 fw-bold text-primary">{{ record_count }}</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Independent Variable</div>
+                <div class="fw-semibold">Glucose Level (mg/dL)</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Target Variable</div>
+                <div class="fw-semibold">Diabetic (binary)</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Source</div>
+                <div class="fw-semibold">Simulated dataset built for this course activity</div>
+            </div>
+        </div>
+        <hr>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <span class="badge bg-primary">Class 0</span>
+                Non-Diabetic &mdash; glucose level within a typical healthy range
+            </div>
+            <div class="col-md-6">
+                <span class="badge bg-danger">Class 1</span>
+                Diabetic &mdash; glucose level consistent with a diabetes diagnosis
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 3. DATA VISUALIZATION -->
+    <div class="concept-card mb-4 text-center">
+        <h4 class="text-start"><i class="bi bi-graph-up-arrow"></i> 3. Data Visualization</h4>
+        <img
+            src="data:image/png;base64,{{ chart }}"
+            alt="Scatter plot of glucose level by diabetes class, with the model's fitted probability curve"
+            class="img-fluid rounded mt-3 border">
+    </div>
+
+
+    <!-- 4. TRAIN/TEST SPLIT -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-scissors"></i> 4. Train / Test Split</h4>
+        <div class="row text-center g-3">
+            <div class="col-md-6">
+                <div class="fs-3 fw-bold text-primary">{{ train_count }}</div>
+                <div class="text-muted">Training records (80%)</div>
+            </div>
+            <div class="col-md-6">
+                <div class="fs-3 fw-bold text-danger">{{ test_count }}</div>
+                <div class="text-muted">Testing records (20%)</div>
+            </div>
+        </div>
+        <p class="text-muted mt-3 mb-0">
+            The split was performed with scikit-learn's
+            <code>train_test_split()</code>, stratified by class so both sets
+            keep a similar proportion of each label.
+        </p>
+    </div>
+
+
+    <!-- 5 & 6. MODEL + CLASSIFICATION FORM -->
+    <div class="concept-card">
+        <h4><i class="bi bi-cpu"></i> 5 &amp; 6. Try the Model: Classification Form</h4>
+        <p class="text-muted">
+            Enter a glucose level (mg/dL) and the trained Logistic Regression
+            model will classify the patient and show the predicted probability.
+        </p>
+
+        <form method="post" class="row g-3 align-items-end" novalidate>
+
+            <div class="col-md-6">
+                <label for="glucose" class="form-label">Glucose Level (mg/dL)</label>
+                <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    class="form-control {% if error %}is-invalid{% endif %}"
+                    id="glucose"
+                    name="glucose"
+                    placeholder="e.g. 130"
+                    required>
+                {% if error %}
+                <div class="invalid-feedback">
+                    {{ error }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-magic"></i> Classify
+                </button>
+            </div>
+
+        </form>
+
+        {% if result is not none %}
+        <div class="alert {% if result.label == 1 %}alert-danger{% else %}alert-success{% endif %} mt-4 mb-0">
+            <i class="bi bi-check-circle"></i>
+            Predicted class: <strong>{{ result.class_name }}</strong>
+            (probability: {{ result.probability }}%)
+            <div class="small mt-1">
+                {% if result.label == 1 %}
+                This means the model estimates, based on the glucose level
+                entered, that the patient is likely to be diabetic.
+                {% else %}
+                This means the model estimates, based on the glucose level
+                entered, that the patient is unlikely to be diabetic.
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}
