@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}
+Logistic Regression - Evaluation Metrics
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+
+        <span class="badge bg-primary">
+            SUPERVISED LEARNING &middot; EVALUATION
+        </span>
+
+        <h1 class="display-5 fw-bold mt-2">
+            Logistic Regression &mdash; Evaluation Metrics
+        </h1>
+
+        <p class="lead text-muted">
+            Performance measured on the 20% test set ({{ test_count }} records) held out during training.
+        </p>
+
+    </div>
+
+
+    <!-- CONFUSION MATRIX -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-grid-3x3"></i> Confusion Matrix</h4>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered text-center mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th></th>
+                        <th>Predicted: Non-Diabetic (0)</th>
+                        <th>Predicted: Diabetic (1)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th class="table-dark">Actual: Non-Diabetic (0)</th>
+                        <td class="bg-success bg-opacity-25">
+                            TN = {{ metrics.tn }}
+                        </td>
+                        <td class="bg-danger bg-opacity-25">
+                            FP = {{ metrics.fp }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="table-dark">Actual: Diabetic (1)</th>
+                        <td class="bg-danger bg-opacity-25">
+                            FN = {{ metrics.fn }}
+                        </td>
+                        <td class="bg-success bg-opacity-25">
+                            TP = {{ metrics.tp }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row g-3 mt-1">
+            <div class="col-md-3 col-6">
+                <div class="small text-muted">True Positives (TP)</div>
+                <div class="fw-bold">{{ metrics.tp }}</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="small text-muted">True Negatives (TN)</div>
+                <div class="fw-bold">{{ metrics.tn }}</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="small text-muted">False Positives (FP)</div>
+                <div class="fw-bold">{{ metrics.fp }}</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="small text-muted">False Negatives (FN)</div>
+                <div class="fw-bold">{{ metrics.fn }}</div>
+            </div>
+        </div>
+
+        <p class="text-muted mt-3 mb-0">
+            <strong>Interpretation:</strong>
+            {{ metrics.tp }} diabetic patients were correctly identified (TP), and
+            {{ metrics.tn }} non-diabetic patients were correctly cleared (TN).
+            The model produced {{ metrics.fp }} false alarms (FP: predicted
+            diabetic but actually not) and missed {{ metrics.fn }} diabetic
+            patients (FN: predicted non-diabetic but actually diabetic) &mdash;
+            the false negatives are the most clinically important errors to
+            minimize in a screening tool like this one.
+        </p>
+    </div>
+
+
+    <!-- CLASSIFICATION METRICS -->
+    <div class="row g-4">
+
+        <div class="col-md-3 col-6">
+            <div class="concept-card text-center h-100">
+                <div class="text-muted small">Accuracy</div>
+                <div class="display-6 fw-bold text-primary">{{ metrics.accuracy }}%</div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="concept-card text-center h-100">
+                <div class="text-muted small">Precision</div>
+                <div class="display-6 fw-bold text-primary">{{ metrics.precision }}%</div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="concept-card text-center h-100">
+                <div class="text-muted small">Recall</div>
+                <div class="display-6 fw-bold text-primary">{{ metrics.recall }}%</div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="concept-card text-center h-100">
+                <div class="text-muted small">F1-Score</div>
+                <div class="display-6 fw-bold text-primary">{{ metrics.f1 }}%</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="concept-card mt-4">
+        <h5><i class="bi bi-lightbulb"></i> Interpretation</h5>
+        <p class="mb-0">
+            The model correctly classifies {{ metrics.accuracy }}% of patients
+            in the test set. Of all the patients it predicted as diabetic,
+            {{ metrics.precision }}% actually were (precision), and it
+            successfully found {{ metrics.recall }}% of all the truly diabetic
+            patients in the test set (recall). The F1-score of {{ metrics.f1 }}%
+            balances these two, confirming the model performs reliably for
+            this screening use case.
+        </p>
+    </div>
+
+</div>
+
+{% endblock %}

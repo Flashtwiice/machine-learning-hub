@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}
+Logistic Regression - Concepts
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+
+        <span class="badge bg-primary">
+            SUPERVISED LEARNING &middot; CLASSIFICATION
+        </span>
+
+        <h1 class="display-5 fw-bold mt-2">
+            Logistic Regression &mdash; Concepts
+        </h1>
+
+        <p class="lead text-muted">
+            The fundamentals of binary classification before the practical application.
+        </p>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-graph-up"></i> What is Logistic Regression?</h4>
+                <p>
+                    Logistic Regression is a supervised Machine Learning algorithm
+                    used to predict which of two possible categories an
+                    observation belongs to. Instead of predicting a continuous
+                    number, it estimates the <strong>probability</strong> that an
+                    observation belongs to a given class.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-diagram-2"></i> Why Is It a Classification Algorithm?</h4>
+                <p>
+                    Even though it is built on a linear combination of the input
+                    variables, Logistic Regression passes that combination
+                    through a <strong>sigmoid function</strong> that squashes the
+                    result into a probability between 0 and 1, which is then
+                    converted into a discrete class label.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-toggle-on"></i> What Is Binary Classification?</h4>
+                <p>
+                    Binary classification means the target variable can only take
+                    <strong>two possible values</strong>, for example
+                    <code>0 = No</code> / <code>1 = Yes</code> or
+                    <code>0 = Low Risk</code> / <code>1 = High Risk</code>.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-box-arrow-in-right"></i> Independent Variable</h4>
+                <p>
+                    The input value used by the model to estimate the
+                    probability of belonging to each class.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-box-arrow-right"></i> Dependent (Target) Variable</h4>
+                <p>
+                    The variable the model tries to classify. In binary
+                    classification it only has two possible outcomes.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-tags"></i> Classes or Labels</h4>
+                <p>
+                    The distinct categories the target variable can take. Each
+                    class is usually represented with a number
+                    (<code>0</code> or <code>1</code>) for the model to work with.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-percent"></i> Probability of Belonging to a Class</h4>
+                <p>
+                    For every prediction, the model first computes a probability
+                    (e.g. 82% chance of being "Diabetic") before deciding on a
+                    final class.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-sliders"></i> Classification Threshold</h4>
+                <p>
+                    A cutoff value (commonly 0.5) used to convert a probability
+                    into a class: if the probability is above the threshold, the
+                    model predicts class 1; otherwise it predicts class 0.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="concept-card">
+                <h4><i class="bi bi-arrow-left-right"></i> Linear Regression vs. Logistic Regression</h4>
+                <div class="table-responsive mt-3">
+                    <table class="table table-bordered mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th></th>
+                                <th>Linear Regression</th>
+                                <th>Logistic Regression</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Output</strong></td>
+                                <td>A continuous numeric value</td>
+                                <td>A probability (0 to 1) mapped to a class</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Problem type</strong></td>
+                                <td>Regression</td>
+                                <td>Classification</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Function used</strong></td>
+                                <td>Straight line: <code>y = mx + b</code></td>
+                                <td>Sigmoid curve (S-shaped)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="text-center mt-5">
+        <a href="/logistic-regression/application" class="btn btn-primary btn-lg">
+            See the Practical Application <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}
