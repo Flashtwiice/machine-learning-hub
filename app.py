@@ -1,5 +1,5 @@
 ﻿from flask import Flask, render_template, request, abort
-import LinearRegressionGrades, LinearConsumo
+import LinearRegressionGrades, LinearConsumo , clusteringE
 from use_cases import USE_CASES
 
 app = Flask(__name__)
@@ -54,6 +54,13 @@ def RegressionConsumo():
         habitantes = float(request.form["habitantes"])
         calculateConsumo = LinearConsumo.calculateConsumo(habitantes)
     return render_template("LinearConsumo.html", result = calculateConsumo)
+
+
+@app.route("/Cluster/")
+def Cluster():
+    info = clusteringE.implementClustering()
+    return info["Result"]
+
 
 
 @app.route("/use-cases/<int:case_id>")
