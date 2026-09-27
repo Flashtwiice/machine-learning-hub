@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}
+Unsupervised Learning - Clustering Application
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <span class="badge bg-primary">UNSUPERVISED MACHINE LEARNING &middot; APPLICATION</span>
+        <h1 class="display-5 fw-bold mt-2">Household Energy Consumption Profiles</h1>
+        <p class="lead text-muted">K-Means clustering with scikit-learn on {{ record_count }} smart-meter records.</p>
+    </div>
+
+    <!-- 1. DATASET JUSTIFICATION -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-database"></i> 1. Dataset and Variable Selection</h4>
+        <p>
+            <strong>Topic:</strong> smart-meter energy consumption. Utilities collect readings from thousands of
+            households but rarely know in advance which consumer types exist, so this is a natural unsupervised
+            problem: there is no label, only behavior to be grouped.
+        </p>
+        <div class="row g-3 mb-2">
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Raw records</div>
+                <div class="fs-4 fw-bold">{{ raw_count }}</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="text-muted small">Records after cleaning</div>
+                <div class="fs-4 fw-bold text-primary">{{ record_count }}</div>
+            </div>
+            <div class="col-md-6">
+                <div class="text-muted small">Source</div>
+                <div class="fw-semibold">Simulated dataset built for this course activity (<code>data/energy_consumption.csv</code>)</div>
+            </div>
+        </div>
+        <ul class="mb-0">
+            <li><strong>Average daily consumption (kWh):</strong> measures <em>how much</em> energy a household uses,
+                the main driver of cost and grid load.</li>
+            <li><strong>Peak-hour consumption (kWh):</strong> energy used in the 6&ndash;10 pm window; it captures
+                <em>when</em> energy is used, which is what determines demand peaks and tariff design.</li>
+        </ul>
+        <p class="text-muted mt-2 mb-0">
+            Together they separate households by both volume and timing. Both are numerical, continuous and
+            measured in the same unit.
+        </p>
+    </div>
+
+    <!-- 2. PREPROCESSING -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-funnel"></i> 2. Preprocessing Steps</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle mb-0">
+                <thead class="table-dark">
+                    <tr><th>#</th><th>Step</th><th>Records removed</th><th>Records remaining</th><th>Reason</th></tr>
+                </thead>
+                <tbody>
+                    {% for s in preprocessing %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ s.step }}</td>
+                        <td>{{ s.removed }}</td>
+                        <td>{{ s.remaining }}</td>
+                        <td class="small">{{ s.detail }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. MODEL CONFIGURATION -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-sliders"></i> 3. K-Means Configuration (scikit-learn)</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered mb-3">
+                <thead class="table-dark"><tr><th>Parameter</th><th>Value</th><th>Explanation</th></tr></thead>
+                <tbody>
+                    <tr><td><code>n_clusters</code></td><td>{{ config.n_clusters }}</td>
+                        <td class="small">Number of groups K, chosen with the comparison below.</td></tr>
+                    <tr><td><code>init</code></td><td>{{ config.init }}</td>
+                        <td class="small">Spreads the starting centroids apart, reducing the risk of a poor start.</td></tr>
+                    <tr><td><code>n_init</code></td><td>{{ config.n_init }}</td>
+                        <td class="small">Runs the algorithm 10 times and keeps the run with the lowest inertia.</td></tr>
+                    <tr><td><code>max_iter</code></td><td>{{ config.max_iter }}</td>
+                        <td class="small">Upper limit of iterations per run (this fit converged in {{ n_iter }}).</td></tr>
+                    <tr><td><code>random_state</code></td><td>{{ config.random_state }}</td>
+                        <td class="small">Makes the result reproducible.</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <h6>Why K = 3?</h6>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered text-center w-auto mb-2">
+                <thead class="table-dark"><tr><th>K</th><th>Inertia (SSE)</th><th>Silhouette</th></tr></thead>
+                <tbody>
+                    {% for r in k_comparison %}
+                    <tr {% if r.k == config.n_clusters %}class="table-primary fw-bold"{% endif %}>
+                        <td>{{ r.k }}</td><td>{{ r.inertia }}</td><td>{{ r.silhouette }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted mb-0">
+            Inertia drops sharply up to K = 3 and much more slowly afterwards (the "elbow"). K = 2 has a slightly
+            higher silhouette, but it merges the evening-peak households with the high-consumption ones, hiding a
+            behavior difference that matters to a utility. K = 3 was chosen as the best balance between
+            separation and interpretability.
+        </p>
+    </div>
+
+    <!-- 4. VISUALIZATION -->
+    <div class="concept-card mb-4 text-center">
+        <h4 class="text-start"><i class="bi bi-graph-up-arrow"></i> 4. Clusters and Centroids</h4>
+        <img src="data:image/png;base64,{{ chart }}" class="img-fluid rounded border mt-3"
+             alt="Scatter plot of households colored by cluster, with the centroids marked">
+    </div>
+
+    <!-- 5. SUMMARY -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-table"></i> 5. Cluster Summary</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Cluster</th><th>Profile</th><th>Records</th><th>Share</th>
+                        <th>Centroid: Avg Daily (kWh)</th><th>Centroid: Peak Hour (kWh)</th><th>Peak share of daily use</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in summary %}
+                    <tr>
+                        <td>{{ c.cluster }}</td><td class="text-start">{{ c.name }}</td>
+                        <td>{{ c.count }}</td><td>{{ c.share }}%</td>
+                        <td>{{ c.avg }}</td><td>{{ c.peak }}</td><td>{{ c.peak_share }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small mt-2 mb-0">
+            Centroids are reported in the original units (kWh), converted back from the standardized space.
+        </p>
+    </div>
+
+    <!-- 6. SILHOUETTE -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-check2-circle"></i> 6. Evaluation: Silhouette Score</h4>
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3 text-center">
+                <div class="display-4 fw-bold text-primary">{{ silhouette }}</div>
+                <div class="text-muted small">silhouette score (K = {{ config.n_clusters }})</div>
+            </div>
+            <div class="col-md-9">
+                <p class="mb-0">
+                    A score of <strong>{{ silhouette }}</strong> indicates <strong>{{ silhouette_label }}</strong>.
+                    On average, a household is clearly closer to its own cluster than to the nearest other cluster,
+                    although the groups are not perfectly separated: some households lie near the boundary between
+                    two profiles, which is expected with real consumption behavior. The score is computed on the
+                    standardized data with scikit-learn's <code>silhouette_score</code>.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. INTERPRETATION -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-lightbulb"></i> 7. Cluster Characteristics and Meaning</h4>
+        <div class="row g-3">
+            {% for c in summary %}
+            <div class="col-md-4">
+                <div class="border rounded p-3 h-100">
+                    <h6>Cluster {{ c.cluster }}: {{ c.name }}</h6>
+                    <p class="small mb-0">
+                        {% if c.cluster == 1 %}
+                        {{ c.count }} households ({{ c.share }}%) using about {{ c.avg }} kWh per day, with a small evening
+                        peak of {{ c.peak }} kWh. These homes have low demand; they are candidates for basic tariffs
+                        and are the least relevant for grid-load management.
+                        {% elif c.cluster == 2 %}
+                        {{ c.count }} households ({{ c.share }}%) using about {{ c.avg }} kWh per day, but
+                        {{ c.peak_share }}% of it falls in the evening window. Their demand is concentrated when the grid is
+                        busiest, so they benefit most from time-of-use pricing and load-shifting incentives.
+                        {% else %}
+                        {{ c.count }} households ({{ c.share }}%) using about {{ c.avg }} kWh per day with a flatter
+                        profile (only {{ c.peak_share }}% in the evening). Their high total use suggests large homes or
+                        continuous loads such as heating or cooling, making them targets for efficiency programs.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 8. RECORDS TABLE -->
+    <div class="concept-card">
+        <h4><i class="bi bi-list-ul"></i> 8. Records and Assigned Clusters</h4>
+        <p class="text-muted">All {{ record_count }} cleaned records with the cluster assigned by the model.</p>
+        <div class="table-responsive border rounded" style="max-height: 420px; overflow-y: auto;">
+            <table class="table table-sm table-striped text-center mb-0">
+                <thead class="table-dark" style="position: sticky; top: 0;">
+                    <tr><th>Household</th><th>Avg Daily (kWh)</th><th>Peak Hour (kWh)</th><th>Cluster</th></tr>
+                </thead>
+                <tbody>
+                    {% for r in rows %}
+                    <tr>
+                        <td>{{ r.id }}</td><td>{{ r.avg }}</td><td>{{ r.peak }}</td>
+                        <td><span class="badge {% if r.cluster == 1 %}bg-primary{% elif r.cluster == 2 %}bg-danger{% else %}bg-success{% endif %}">Cluster {{ r.cluster }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
