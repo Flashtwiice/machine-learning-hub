@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}
+Unsupervised Learning - Manual Exercise
+{% endblock %}
+
+
+{% block content %}
+
+{% set final = iterations[-1] %}
+{% set first = iterations[0] %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <span class="badge bg-primary">UNSUPERVISED MACHINE LEARNING</span>
+        <h1 class="display-5 fw-bold mt-2">Manual K-Means Exercise</h1>
+        <p class="lead text-muted">
+            K-Means simulated step by step on {{ record_count }} smart-meter households (K = 3, 3 iterations).
+        </p>
+    </div>
+
+    <!-- 1. DATASET -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-database"></i> 1. Dataset and Context</h4>
+        <p>
+            An electricity utility installed smart meters in {{ record_count }} households.
+            Each record is one household summarized by two numerical variables. The goal is to
+            group households with similar consumption behavior, without any predefined label.
+            The data is stored in <code>data/energy_manual.csv</code> and is simulated for this course activity.
+        </p>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <span class="badge bg-secondary">X</span>
+                <strong>Average Daily Consumption (kWh)</strong> &mdash; mean energy a household uses per day.
+                Range {{ describe.avg_daily_kwh['min'] }}&ndash;{{ describe.avg_daily_kwh['max'] }},
+                mean {{ describe.avg_daily_kwh['mean'] }}.
+            </div>
+            <div class="col-md-6">
+                <span class="badge bg-secondary">Y</span>
+                <strong>Peak-Hour Consumption (kWh)</strong> &mdash; energy used during the evening peak window (6&ndash;10 pm).
+                Range {{ describe.peak_hour_kwh['min'] }}&ndash;{{ describe.peak_hour_kwh['max'] }},
+                mean {{ describe.peak_hour_kwh['mean'] }}.
+            </div>
+        </div>
+    </div>
+
+    <!-- 2 & 3. INITIAL CENTROIDS -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-geo-alt"></i> 2 &amp; 3. Initial Centroids and Scatter Plot</h4>
+        <p class="text-muted">
+            Three starting centroids were placed by hand, one in each region where a low, medium and high
+            consumer would plausibly be found.
+        </p>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center w-auto mb-3">
+                <thead class="table-dark">
+                    <tr><th>Centroid</th><th>X: Avg Daily (kWh)</th><th>Y: Peak Hour (kWh)</th></tr>
+                </thead>
+                <tbody>
+                    {% for c in initial_centroids %}
+                    <tr><td>C{{ c.cluster }}</td><td>{{ c.x }}</td><td>{{ c.y }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center">
+            <img src="data:image/png;base64,{{ initial_plot }}" class="img-fluid rounded border"
+                 alt="Scatter plot of the households with the three initial centroids">
+        </div>
+    </div>
+
+    <!-- 4. ITERATIONS -->
+    <h3 class="fw-bold mb-3"><i class="bi bi-arrow-repeat"></i> 4. The Three Iterations</h3>
+    <p class="text-muted">
+        In each iteration: (1) the Euclidean distance
+        <code>d = &radic;((x&minus;c<sub>x</sub>)&sup2; + (y&minus;c<sub>y</sub>)&sup2;)</code>
+        from every record to the 3 centroids is computed, (2) each record joins the nearest centroid,
+        and (3) each centroid moves to the mean of its records.
+    </p>
+
+    <div class="accordion mb-4" id="iterationAccordion">
+        {% for it in iterations %}
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#iter{{ it.n }}">
+                    Iteration {{ it.n }} &mdash; total within-cluster sum of squares: {{ it.wcss }}
+                </button>
+            </h2>
+            <div id="iter{{ it.n }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}"
+                 data-bs-parent="#iterationAccordion">
+                <div class="accordion-body">
+
+                    <h6>Updated centroids</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered text-center mb-4">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Cluster</th><th>Records</th>
+                                    <th>Previous centroid</th><th>New centroid (mean)</th>
+                                    <th>Within-cluster variance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in it.clusters %}
+                                <tr>
+                                    <td>Cluster {{ c.cluster }}</td>
+                                    <td>{{ c.count }}</td>
+                                    <td>({{ c.old_cx }}, {{ c.old_cy }})</td>
+                                    <td><strong>({{ c.cx }}, {{ c.cy }})</strong></td>
+                                    <td>{{ c.variance }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <img src="data:image/png;base64,{{ it.plot }}" class="img-fluid rounded border"
+                             alt="Clusters and updated centroids after iteration {{ it.n }}">
+                    </div>
+
+                    <h6>Distances and assignments (all {{ record_count }} records)</h6>
+                    <div class="table-responsive border rounded" style="max-height: 360px; overflow-y: auto;">
+                        <table class="table table-sm table-striped text-center mb-0">
+                            <thead class="table-dark" style="position: sticky; top: 0;">
+                                <tr>
+                                    <th>Household</th><th>X</th><th>Y</th>
+                                    <th>d to C1</th><th>d to C2</th><th>d to C3</th>
+                                    <th>Assigned cluster</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in it.rows %}
+                                <tr>
+                                    <td>{{ r.id }}</td><td>{{ r.x }}</td><td>{{ r.y }}</td>
+                                    <td {% if r.cluster == 1 %}class="fw-bold text-primary"{% endif %}>{{ r.d1 }}</td>
+                                    <td {% if r.cluster == 2 %}class="fw-bold text-danger"{% endif %}>{{ r.d2 }}</td>
+                                    <td {% if r.cluster == 3 %}class="fw-bold text-success"{% endif %}>{{ r.d3 }}</td>
+                                    <td>Cluster {{ r.cluster }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="small text-muted mt-2 mb-0">
+                        Distances are measured to the centroids <em>before</em> the update
+                        (Iteration 1 uses the initial centroids). The bold distance is the minimum.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 5. VARIANCE COMPARISON -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-graph-down"></i> 5. Within-Cluster Variance Across Iterations</h4>
+        <p class="text-muted">
+            Variance = mean squared distance of a cluster's records to its updated centroid.
+            The last column is the total sum of squared distances (SSE) over all clusters.
+        </p>
+        <div class="table-responsive">
+            <table class="table table-bordered text-center mb-3">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Iteration</th>
+                        <th>Cluster 1</th><th>Cluster 2</th><th>Cluster 3</th>
+                        <th>Total SSE</th><th>Change vs. previous</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for it in iterations %}
+                    <tr>
+                        <td>{{ it.n }}</td>
+                        {% for c in it.clusters %}<td>{{ c.variance }}</td>{% endfor %}
+                        <td><strong>{{ it.wcss }}</strong></td>
+                        <td>
+                            {% if loop.first %}&mdash;
+                            {% else %}
+                            {% set prev = iterations[loop.index0 - 1] %}
+                            {{ ((it.wcss - prev.wcss) / prev.wcss * 100) | round(1) }}%
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="mb-0">
+            The total SSE fell from <strong>{{ first.wcss }}</strong> to <strong>{{ final.wcss }}</strong>
+            ({{ ((final.wcss - first.wcss) / first.wcss * 100) | round(1) }}%). The largest improvement happened
+            between iterations 1 and 2, when the centroids were still moving toward the real groups; between
+            iterations 2 and 3 the centroids barely moved, which shows the algorithm is approaching convergence.
+            The most dispersed cluster is Cluster 3, whose variance shrinks the most as its members are reassigned.
+        </p>
+    </div>
+
+    <!-- 6. FINAL INTERPRETATION -->
+    <div class="concept-card">
+        <h4><i class="bi bi-lightbulb"></i> 6. Final Result and Cluster Characteristics</h4>
+        <div class="row g-3">
+            {% for c in final.clusters %}
+            <div class="col-md-4">
+                <div class="border rounded p-3 h-100">
+                    <h6>Cluster {{ c.cluster }} &middot; {{ c.count }} households</h6>
+                    <p class="mb-1 small">Centroid: <strong>({{ c.cx }}, {{ c.cy }})</strong></p>
+                    <p class="mb-1 small">Peak share of daily use: <strong>{{ (c.cy / c.cx * 100) | round(1) }}%</strong></p>
+                    <p class="mb-0 small">
+                        {% if c.cluster == 1 %}
+                        Low-consumption households: small daily use and a small evening peak.
+                        {% elif c.cluster == 2 %}
+                        Medium-consumption households with a marked evening peak: a large part of their energy is used
+                        between 6 and 10 pm (typical of families at home after work).
+                        {% else %}
+                        High-consumption households: the largest daily use, but spread more evenly through the day, so
+                        the peak is a smaller fraction of the total.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <p class="mt-3 mb-0">
+            After three iterations the algorithm found three well-differentiated household profiles. The clusters
+            differ mainly in <em>how much</em> energy is used (Cluster 1 vs. 2 vs. 3) and in <em>when</em> it is used
+            (Cluster 2 concentrates use in the evening). A utility could use this to design time-of-use tariffs for
+            Cluster 2 and efficiency programs for Cluster 3.
+        </p>
+    </div>
+
+</div>
+
+{% endblock %}
