@@ -3,6 +3,8 @@ import LinearRegressionGrades, LinearConsumo
 from use_cases import USE_CASES
 import logistic_regression_diabetes as logistic_regression
 import random_forest_purchase as random_forest
+import kmeans_manual
+import kmeans_energy
 
 app = Flask(__name__)
 
@@ -192,6 +194,41 @@ def random_forest_metrics():
         metrics=random_forest.get_metrics(),
         lr_metrics=logistic_regression.get_metrics(),
         test_count=random_forest.TEST_COUNT,
+    )
+
+
+@app.route("/unsupervised/concepts")
+def unsupervised_concepts():
+    return render_template("unsupervised_concepts.html")
+
+
+@app.route("/unsupervised/manual-exercise")
+def unsupervised_manual():
+    return render_template(
+        "unsupervised_manual.html",
+        record_count=kmeans_manual.RECORD_COUNT,
+        describe=kmeans_manual.DESCRIBE,
+        initial_centroids=kmeans_manual.INITIAL_CENTROID_ROWS,
+        initial_plot=kmeans_manual.INITIAL_PLOT,
+        iterations=kmeans_manual.ITERATION_RESULTS,
+    )
+
+
+@app.route("/unsupervised/clustering-application")
+def unsupervised_application():
+    return render_template(
+        "unsupervised_application.html",
+        raw_count=kmeans_energy.RAW_COUNT,
+        record_count=kmeans_energy.RECORD_COUNT,
+        preprocessing=kmeans_energy.PREPROCESSING,
+        config=kmeans_energy.KMEANS_CONFIG,
+        n_iter=kmeans_energy.N_ITER,
+        k_comparison=kmeans_energy.K_COMPARISON,
+        summary=kmeans_energy.CLUSTER_SUMMARY,
+        silhouette=kmeans_energy.SILHOUETTE,
+        silhouette_label=kmeans_energy.interpret_silhouette(kmeans_energy.SILHOUETTE),
+        rows=kmeans_energy.TABLE_ROWS,
+        chart=kmeans_energy.generate_plot(),
     )
 
 
