@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}
+Unsupervised Learning - Concepts
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <span class="badge bg-primary">UNSUPERVISED MACHINE LEARNING</span>
+        <h1 class="display-5 fw-bold mt-2">Concepts: Clustering and K-Means</h1>
+        <p class="lead text-muted">
+            Finding structure in data when there are no labels to predict.
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-question-circle"></i> What Is Unsupervised Learning?</h4>
+                <p>
+                    In unsupervised learning the dataset has <strong>no target
+                    variable</strong>. The algorithm receives only input
+                    variables and must discover hidden patterns, groups or
+                    structure on its own, instead of learning to reproduce
+                    known answers as supervised models do.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-collection"></i> What Is Clustering?</h4>
+                <p>
+                    Clustering is the most common unsupervised task: it groups
+                    records so that those inside the same cluster are
+                    <strong>similar to each other</strong> and different from
+                    the records in other clusters. Typical uses are customer
+                    segmentation, anomaly detection and usage profiling.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="concept-card">
+                <h4><i class="bi bi-diagram-3"></i> How Does K-Means Work?</h4>
+                <p>
+                    K-Means partitions the data into <code>K</code> clusters,
+                    where <code>K</code> is chosen in advance. Each cluster is
+                    represented by its <strong>centroid</strong>: the mean
+                    position of all the records in it.
+                </p>
+                <div class="row g-3 text-center">
+                    <div class="col-md-3 col-6">
+                        <div class="process-step">
+                            <div class="step-number">1</div>
+                            <h6>Initialize</h6>
+                            <p class="small mb-0">Choose K starting centroids.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="process-step">
+                            <div class="step-number">2</div>
+                            <h6>Assign</h6>
+                            <p class="small mb-0">Send each record to its nearest centroid (Euclidean distance).</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="process-step">
+                            <div class="step-number">3</div>
+                            <h6>Update</h6>
+                            <p class="small mb-0">Move each centroid to the mean of its records.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="process-step">
+                            <div class="step-number">4</div>
+                            <h6>Repeat</h6>
+                            <p class="small mb-0">Iterate steps 2&ndash;3 until assignments stop changing.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-bullseye"></i> The Role of Centroids</h4>
+                <p>
+                    A centroid is the "center of gravity" of a cluster. It is
+                    the reference point used to decide membership, and its
+                    coordinates describe the typical record of the group. Its
+                    starting position matters: poor initial centroids can lead
+                    to slower convergence or a worse local optimum, which is why
+                    scikit-learn uses <code>k-means++</code> initialization and
+                    several restarts.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-arrow-repeat"></i> The Role of Iterations</h4>
+                <p>
+                    Every iteration can only keep or reduce the
+                    <strong>within-cluster sum of squares</strong>, so the
+                    algorithm steadily improves and eventually converges, when
+                    centroids stop moving. Convergence is usually reached in a
+                    handful of iterations, as the manual exercise shows.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-rulers"></i> Why Standardize the Data?</h4>
+                <p>
+                    K-Means relies on distances, so a variable measured on a
+                    larger scale dominates the result. Standardizing puts all
+                    variables on a comparable scale before clustering.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-check2-square"></i> Evaluating Clusters: Silhouette Score</h4>
+                <p>
+                    The silhouette score compares how close a record is to its
+                    own cluster versus the nearest other cluster. It ranges from
+                    &minus;1 to 1: values near 1 mean well-separated clusters,
+                    values near 0 mean overlapping clusters.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="/unsupervised/manual-exercise" class="btn btn-primary btn-lg me-2">
+            Manual Exercise <i class="bi bi-arrow-right"></i>
+        </a>
+        <a href="/unsupervised/clustering-application" class="btn btn-outline-primary btn-lg">
+            Clustering Application
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}
