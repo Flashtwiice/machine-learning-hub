@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}
+Reinforcement Learning - Application
+{% endblock %}
+
+
+{% block content %}
+
+{% macro st(t) %}({{ t[0] }},{{ t[1] }}){% endmacro %}
+{% set kinds = {'A': 'start', 'T': 'target', 'o': 'free', '#': 'wall', 'D': 'danger'} %}
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <span class="badge bg-primary">REINFORCEMENT LEARNING &middot; APPLICATION</span>
+        <h1 class="display-5 fw-bold mt-2">Q-Learning in a 10 &times; 10 Danger-Zone Maze</h1>
+        <p class="lead text-muted">
+            A virtual robot learns the route from <code>A</code> to <code>T</code> by trial and error,
+            using <code>SGDRegressor</code> to estimate Q(s,a).
+        </p>
+    </div>
+
+    <!-- 1. ENVIRONMENT -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-grid-3x3"></i> 1. The Environment (10 &times; 10)</h4>
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-7 text-center">
+                <div class="rl-grid" aria-label="10 by 10 environment">
+                    {% for row in layout %}
+                    <div class="rl-row">
+                        {% for ch in row %}
+                        <div class="rl-cell rl-{{ kinds[ch] }}">{{ ch }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle mb-2">
+                        <thead class="table-dark">
+                            <tr><th>Character</th><th>Meaning</th><th class="text-center">Count</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in legend %}
+                            <tr>
+                                <td><span class="badge rl-badge-{{ kinds[item.char] }} fs-6">{{ item.char }}</span></td>
+                                <td>{{ item.meaning }}</td>
+                                <td class="text-center fw-bold">{{ counts[item.char] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr><td colspan="2" class="text-end fw-semibold">Total cells</td><td class="text-center fw-bold">{{ total_cells }}</td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <p class="text-muted mt-3 mb-0">
+            The agent has four actions (Up, Down, Left, Right). It can never leave the grid or cross a
+            <code>#</code>, and it <em>may</em> enter a <code>D</code>, but it pays a penalty for doing so.
+            An episode ends when the agent reaches <code>T</code> or when {{ params.max_steps }} steps have been used.
+            The agent's <strong>state</strong> is its current (row, column).
+        </p>
+    </div>
+
+    <!-- 2. REWARDS -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-trophy"></i> 2. Reward System</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle mb-0">
+                <thead class="table-dark">
+                    <tr><th>Situation</th><th class="text-center">Reward</th><th>Effect on the agent's behavior</th></tr>
+                </thead>
+                <tbody>
+                    {% for r in reward_table %}
+                    <tr>
+                        <td>{{ r.event }}</td>
+                        <td class="text-center fw-bold {% if r.reward > 0 %}text-success{% else %}text-danger{% endif %}">
+                            {% if r.reward > 0 %}+{% endif %}{{ r.reward }}
+                        </td>
+                        <td class="small">{{ r.effect }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. TRAINING CONFIGURATION -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-sliders"></i> 3. Training Configuration</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle mb-0">
+                <thead class="table-dark"><tr><th>Parameter</th><th class="text-center">Value</th><th>Why this value</th></tr></thead>
+                <tbody>
+                    {% for p in parameters %}
+                    <tr>
+                        <td>{{ p.name|safe }}</td>
+                        <td class="text-center fw-bold">{{ p.value }}</td>
+                        <td class="small">{{ p.why }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small mt-2 mb-0">
+            Q(s,a) is learned by <code>SGDRegressor</code> over 400 one-hot features (100 states &times; 4 actions):
+            <code>predict()</code> estimates the Q-values and <code>partial_fit()</code> updates them from observed transitions.
+        </p>
+    </div>
+
+    <!-- 4. TRAIN -->
+    <div class="concept-card mb-4 text-center">
+        <h4 class="text-start"><i class="bi bi-play-circle"></i> 4. Train the Agent</h4>
+        <p class="text-muted">
+            The agent starts knowing nothing. Press the button to run {{ params.episodes }} episodes of Q-Learning
+            followed by an evaluation without exploration. Training takes a few seconds.
+        </p>
+        <form method="post" action="/reinforcement-learning/application#results"
+              onsubmit="var b=document.getElementById('trainBtn'); b.disabled=true; b.innerHTML='<span class=&quot;spinner-border spinner-border-sm&quot;></span> Training...';">
+            <button id="trainBtn" type="submit" class="btn btn-primary btn-lg px-5">
+                <i class="bi bi-lightning-charge-fill"></i> Train Agent
+            </button>
+        </form>
+    </div>
+
+    <div id="results"></div>
+
+    {% if result %}
+
+    <!-- 5. TRAINING RESULTS -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-clipboard-data"></i> 5. Training Results</h4>
+        <div class="row g-3 text-center">
+            <div class="col-md-3 col-6"><div class="border rounded p-3 h-100">
+                <div class="text-muted small">Total episodes</div>
+                <div class="fs-3 fw-bold text-primary">{{ result.episodes }}</div></div></div>
+            <div class="col-md-3 col-6"><div class="border rounded p-3 h-100">
+                <div class="text-muted small">Successful episodes</div>
+                <div class="fs-3 fw-bold text-success">{{ result.successes }}</div></div></div>
+            <div class="col-md-3 col-6"><div class="border rounded p-3 h-100">
+                <div class="text-muted small">Success percentage</div>
+                <div class="fs-3 fw-bold text-success">{{ result.success_pct }}%</div></div></div>
+            <div class="col-md-3 col-6"><div class="border rounded p-3 h-100">
+                <div class="text-muted small">Average reward (all episodes)</div>
+                <div class="fs-3 fw-bold">{{ result.average_reward }}</div></div></div>
+            <div class="col-md-3 col-6"><div class="border rounded p-3 h-100">
+                <div class="text-muted small">Average reward (last 100)</div>
+                <div class="fs-3 fw-bold">{{ result.average_last_100 }}</div></div></div>
+            <div class="col-md-3 col-6"><div class="border rounded p-3 h-100">
+                <div class="text-muted small">Final epsilon (&epsilon;)</div>
+                <div class="fs-3 fw-bold">{{ result.final_epsilon }}</div></div></div>
+            <div class="col-md-3 col-6"><div class="border rounded p-3 h-100">
+                <div class="text-muted small">Movements in final evaluation</div>
+                <div class="fs-3 fw-bold">{{ result.moves }}</div></div></div>
+            <div class="col-md-3 col-6"><div class="border rounded p-3 h-100">
+                <div class="text-muted small">Total reward in final evaluation</div>
+                <div class="fs-3 fw-bold">{{ result.total_reward }}</div></div></div>
+        </div>
+
+        <div class="mt-3">
+            {% if result.reached_goal %}
+            <div class="alert alert-success mb-0">
+                <i class="bi bi-check-circle-fill"></i>
+                <strong>Goal reached: Yes.</strong>
+                Without exploration, the trained agent reached <code>T</code> in {{ result.moves }} moves with a total reward of
+                {{ result.total_reward }}, entering {{ result.danger_entries }} danger zone(s) and receiving
+                {{ result.penalties }} wall/border penalties.
+                {% if result.danger_entries == 0 and result.penalties == 0 %}
+                It avoided every unnecessary penalty.
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="alert alert-danger mb-0">
+                <i class="bi bi-x-circle-fill"></i>
+                <strong>Goal reached: No.</strong> The greedy policy did not reach <code>T</code> within {{ params.max_steps }} steps.
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="text-center mt-4">
+            <img src="data:image/png;base64,{{ result.chart }}" class="img-fluid rounded border"
+                 alt="Learning curves: reward per episode, success rate and epsilon decay">
+        </div>
+    </div>
+
+    <!-- 6. LEARNED PATH -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-signpost-2"></i> 6. Learned Path</h4>
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-7 text-center">
+                <div class="rl-grid" aria-label="Environment with the learned path highlighted">
+                    {% for row in layout %}{% set r = loop.index0 %}
+                    <div class="rl-row">
+                        {% for ch in row %}{% set c = loop.index0 %}
+                        <div class="rl-cell rl-{{ kinds[ch] }}{% if (r, c) in result.path_cells %} rl-path{% endif %}">
+                            {{ ch }}{% if (r, c) in result.path_cells and ch not in 'AT' %}<span class="rl-step-no">{{ result.path_cells[(r, c)] }}</span>{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge rl-badge-start">A &middot; Start</span>
+                    <span class="badge rl-badge-target">T &middot; Target</span>
+                    <span class="badge rl-badge-free">o &middot; Path available</span>
+                    <span class="badge rl-badge-wall"># &middot; Wall</span>
+                    <span class="badge rl-badge-danger">D &middot; Danger zone</span>
+                    <span class="badge rl-badge-path">Highlighted = route followed</span>
+                </div>
+                <ul class="mb-0">
+                    <li>The agent started at <code>A</code> and followed the highlighted cells; the small number is the step.</li>
+                    <li>Walls and danger zones keep their own colors, so obstacles and dangers remain easy to locate.</li>
+                    <li>Danger zones crossed: <strong>{{ result.danger_entries }}</strong>
+                        &middot; wall/border penalties: <strong>{{ result.penalties }}</strong>.</li>
+                    <li>Goal reached: <strong>{{ 'Yes' if result.reached_goal else 'No' }}</strong>.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. STEP BY STEP -->
+    <div class="concept-card mb-4">
+        <h4><i class="bi bi-list-ol"></i> 7. Step-by-Step Evaluation (no exploration)</h4>
+        <p class="text-muted">
+            Each row is a real step of the trained agent: at every state it chose the action with the highest Q-value.
+        </p>
+        <div class="table-responsive border rounded" style="max-height: 420px; overflow-y: auto;">
+            <table class="table table-sm table-striped text-center align-middle mb-0">
+                <thead class="table-dark" style="position: sticky; top: 0;">
+                    <tr><th>Step</th><th>State</th><th>Action</th><th>Next State</th><th>Cell Type</th><th>Reward</th></tr>
+                </thead>
+                <tbody>
+                    {% for s in result.steps %}
+                    <tr>
+                        <td>{{ s.number }}</td>
+                        <td>{{ st(s.state) }}</td>
+                        <td>{{ s.action }}</td>
+                        <td>{{ st(s.next_state) }}</td>
+                        <td>
+                            <span class="badge {% if s.cell_type == 'Danger' %}rl-badge-danger{% elif s.cell_type == 'Target' %}rl-badge-target{% elif s.cell_type in ('Wall', 'Outside grid') %}rl-badge-wall{% else %}rl-badge-free{% endif %}">{{ s.cell_type }}</span>
+                        </td>
+                        <td class="fw-bold {% if s.reward > 0 %}text-success{% else %}text-danger{% endif %}">{{ s.reward }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="table-light">
+                    <tr><td colspan="5" class="text-end fw-semibold">Total reward</td><td class="fw-bold">{{ result.total_reward }}</td></tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- 8. Q VALUES -->
+    <div class="concept-card">
+        <h4><i class="bi bi-table"></i> 8. Learned Q-Values</h4>
+        <p class="text-muted">
+            Q(s,a) estimated by the trained model for the four actions in every state the agent can stand on
+            ({{ result.q_table|length }} states). The best action of each state is highlighted: it is what the agent
+            chooses when it exploits.
+        </p>
+        <div class="table-responsive border rounded" style="max-height: 480px; overflow-y: auto;">
+            <table class="table table-sm table-bordered text-center align-middle mb-0">
+                <thead class="table-dark" style="position: sticky; top: 0;">
+                    <tr><th>State</th><th>Cell</th>{% for a in actions %}<th>{{ a }}</th>{% endfor %}<th>Best action</th></tr>
+                </thead>
+                <tbody>
+                    {% for row in result.q_table %}
+                    <tr {% if row.state in result.path_cells %}class="table-warning"{% endif %}>
+                        <td>{{ st(row.state) }}</td>
+                        <td><span class="badge rl-badge-{{ kinds[row.cell] }}">{{ row.cell }}</span></td>
+                        {% for v in row['values'] %}
+                        <td class="{% if loop.index0 == row.best %}rl-q-best{% endif %}">{{ '%.2f'|format(v) }}</td>
+                        {% endfor %}
+                        <td class="fw-semibold">{{ actions[row.best] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small mt-2 mb-0">Rows shaded yellow belong to the learned path.</p>
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

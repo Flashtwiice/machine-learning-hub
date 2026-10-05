@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}
+Reinforcement Learning - Concepts
+{% endblock %}
+
+
+{% block content %}
+
+
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <span class="badge bg-primary">REINFORCEMENT LEARNING</span>
+        <h1 class="display-5 fw-bold mt-2">Concepts: Learning from Rewards</h1>
+        <p class="lead text-muted">
+            Every concept below is explained with the 10 &times; 10 danger-zone maze of the Application page.
+        </p>
+    </div>
+
+    <!-- BIG PICTURE -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-5">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-grid-3x3"></i> The Exercise in One Picture</h4>
+                <p class="text-muted small">
+                    A robot (<code>A</code>) must learn how to reach the target (<code>T</code>) through a maze.
+                </p>
+                <div class="rl-grid rl-grid-sm">
+                    {% for row in layout %}{% set r = loop.index0 %}
+                    <div class="rl-row">
+                        {% for ch in row %}
+                        <div class="rl-cell rl-{{ {'A':'start','T':'target','o':'free','#':'wall','D':'danger'}[ch] }}">{{ ch }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    {% for item in legend %}
+                    <span class="badge rl-badge-{{ {'A':'start','T':'target','o':'free','#':'wall','D':'danger'}[item.char] }}">{{ item.char }} &middot; {{ item.meaning }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-diagram-3"></i> The Learning Loop</h4>
+                <p class="text-muted small">This is what happens in every step of every training episode.</p>
+                <div class="row g-2 text-center">
+                    {% set flow = [
+                        ("bi-grid-3x3-gap", "Environment", "10 &times; 10 grid and its rules"),
+                        ("bi-flag", "Initial state", "Robot on A, (0,0)"),
+                        ("bi-hand-index", "Action selection", "Up, Down, Left or Right"),
+                        ("bi-shuffle", "Explore / Exploit", "Epsilon-greedy choice"),
+                        ("bi-controller", "Interaction", "step(state, action)"),
+                        ("bi-trophy", "Reward", "-1, -5, -8, -25 or +100"),
+                        ("bi-geo-alt", "Next state", "New (row, column)"),
+                        ("bi-pencil-square", "Q-value update", "partial_fit(target)"),
+                        ("bi-flag-fill", "Goal / end", "Reach T or max steps")
+                    ] %}
+                    {% for icon, title, desc in flow %}
+                    <div class="col-4">
+                        <div class="rl-flow-step">
+                            <i class="bi {{ icon }}"></i>
+                            <div class="fw-semibold small">{{ loop.index }}. {{ title }}</div>
+                            <div class="text-muted" style="font-size: .72rem;">{{ desc|safe }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center text-muted small mt-2">
+                    <i class="bi bi-arrow-return-left"></i> the loop repeats with the next action until the episode ends
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOSSARY -->
+    <h3 class="fw-bold mb-3"><i class="bi bi-book"></i> The 20 Concepts, Explained with This Maze</h3>
+    <div class="accordion mb-4" id="conceptAccordion">
+        {% for g in glossary %}
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#concept{{ loop.index }}">
+                    <i class="bi {{ g.icon }} me-2 text-primary"></i>
+                    <span class="text-muted me-2">{{ loop.index }}.</span> {{ g.term|safe }}
+                </button>
+            </h2>
+            <div id="concept{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}"
+                 data-bs-parent="#conceptAccordion">
+                <div class="accordion-body">
+                    <p>{{ g.text|safe }}</p>
+                    <div class="alert alert-primary mb-0 py-2">
+                        <i class="bi bi-lightbulb"></i> <strong>In this exercise:</strong> {{ g.example|safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- REWARDS TABLE + Q-LEARNING UPDATE -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-trophy"></i> Rewards and Penalties of the Maze</h4>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle mb-0">
+                        <thead class="table-dark"><tr><th>Event</th><th class="text-center">Reward</th></tr></thead>
+                        <tbody>
+                            {% for r in reward_table %}
+                            <tr>
+                                <td>{{ r.event }}</td>
+                                <td class="text-center fw-bold {% if r.reward > 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {% if r.reward > 0 %}+{% endif %}{{ r.reward }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="concept-card h-100">
+                <h4><i class="bi bi-percent"></i> Epsilon During Training</h4>
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center mb-2">
+                        <thead class="table-dark"><tr><th>Episode</th><th>&epsilon;</th><th>Behavior</th></tr></thead>
+                        <tbody>
+                            {% for e in epsilons %}
+                            <tr>
+                                <td>{{ e.episode }}</td><td>{{ e.epsilon }}</td>
+                                <td class="small text-start">
+                                    {% if e.epsilon >= 0.9 %}Almost pure exploration
+                                    {% elif e.epsilon > 0.1 %}Mixed
+                                    {% else %}Mostly exploitation{% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-muted small mb-0">&epsilon; &larr; max(&epsilon;<sub>min</sub>, &epsilon; &times; decay) after each episode.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <h5 class="alert-heading"><i class="bi bi-calculator"></i> The Q-Learning Update Used Here</h5>
+        <p class="mb-1">For every experience <code>(s, a, r, s')</code> the agent builds a learning target and moves Q(s,a) toward it:</p>
+        <p class="mb-1 fs-5"><code>target = r + &gamma; &middot; max<sub>a'</sub> Q(s', a')</code> &nbsp;&nbsp; (if s' is the target: <code>target = r</code>)</p>
+        <p class="mb-0">
+            <code>predict()</code> supplies Q(s', a') for the four actions and <code>partial_fit()</code> adjusts the
+            weight of the pair (s, a) toward the target. Repeating this for hundreds of episodes makes the values spread
+            backward from <code>T</code> to <code>A</code>.
+        </p>
+    </div>
+
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i>
+        <strong>Why a danger zone changes the problem:</strong> the shortest route from A to T crosses two <code>D</code> cells,
+        but the safe route is only two moves longer. The agent can only discover this by experiencing the -25 penalties and
+        comparing the returns, which is exactly what Reinforcement Learning is for.
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="/reinforcement-learning/application" class="btn btn-primary btn-lg">
+            Train the Agent <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

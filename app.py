@@ -5,6 +5,9 @@ import logistic_regression_diabetes as logistic_regression
 import random_forest_purchase as random_forest
 import kmeans_manual
 import kmeans_energy
+from reinforcement import train, GRID, START, GOAL, ACTION_NAMES
+import rl_gridworld
+import rl_content
 
 app = Flask(__name__)
 
@@ -230,6 +233,52 @@ def unsupervised_application():
         rows=kmeans_energy.TABLE_ROWS,
         chart=kmeans_energy.generate_plot(),
     )
+
+
+@app.route('/reinforcement', methods=['GET', 'POST'])
+def reinforcement():
+    result = None
+    if request.method == 'POST':
+        result = train(episodes=1000)
+ 
+    # Pass the result and grid settings to the template.
+    return render_template(
+        'reinforcement.html',
+        result=result,
+        grid=GRID,
+        start=START,
+        goal=GOAL,
+        actions=ACTION_NAMES,
+    )
+
+
+def _rl_context(**extra):
+    context = dict(
+        layout=rl_gridworld.LAYOUT,
+        legend=rl_gridworld.LEGEND,
+        counts=rl_gridworld.CELL_COUNTS,
+        total_cells=rl_gridworld.ROWS * rl_gridworld.COLUMNS,
+        reward_table=rl_gridworld.REWARD_TABLE,
+        parameters=rl_gridworld.PARAMETERS,
+        params=rl_content.P,
+        actions=rl_gridworld.ACTION_NAMES,
+    )
+    context.update(extra)
+    return context
+
+
+@app.route("/reinforcement-learning/concepts")
+def rl_concepts():
+    return render_template(
+        "rl_concepts.html",
+        **_rl_context(glossary=rl_content.GLOSSARY, epsilons=rl_gridworld.epsilon_schedule()),
+    )
+
+
+@app.route("/reinforcement-learning/application", methods=["GET", "POST"])
+def rl_application():
+    result = rl_gridworld.train() if request.method == "POST" else None
+    return render_template("rl_application.html", **_rl_context(result=result))
 
 
 if __name__ == "__main__":
