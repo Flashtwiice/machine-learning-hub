@@ -319,3 +319,11 @@ def train(episodes=EPISODES):
         "q_table": q_table,
         "chart": _learning_chart(episode_rewards, episode_success, epsilons),
     }
+
+
+def epsilon_schedule(checkpoints=(1, 50, 100, 200, 400, EPISODES)):
+    """Epsilon used at the start of selected episodes, for the Concepts page."""
+    return [
+        {"episode": n, "epsilon": round(max(EPSILON_MIN, EPSILON_START * EPSILON_DECAY ** (n - 1)), 3)}
+        for n in checkpoints
+    ]
