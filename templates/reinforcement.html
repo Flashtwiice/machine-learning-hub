@@ -1,0 +1,97 @@
+<!-- Create the page structure. -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Reinforcement Learning</title>
+  <!-- Style the grid and the results tables. -->
+  <style>
+    body { font-family: sans-serif; max-width: 850px;
+           margin: 40px auto; padding: 16px; }
+    table { border-collapse: collapse; margin: 20px 0; }
+    td, th { border: 1px solid #b9c7d5; padding: 10px; }
+    .wall { background: #18314a; color: white; }
+    .path { background: #c5eedb; }
+    button { background: #176650; color: white;
+             padding: 12px 20px; border: 0; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Q-Learning: find the exit</h1>
+
+  <!-- Submit the training request to the Flask route. -->
+  <form method="post" action="{{ url_for('reinforcement') }}">
+    <button type="submit">Train for 1000 episodes</button>
+  </form>
+
+  <!-- Create one table cell for each grid position. -->
+  <table aria-label="Grid">
+    {% for row in range(4) %}
+    <tr>
+      {% for column in range(4) %}
+      {% set position = (row, column) %}
+      <!-- Choose the cell style and its visible label. -->
+      <td class="{% if grid[row][column] == 1 %}wall
+        {% elif result and position in result.path %}path
+        {% endif %}">
+        {% if position == start %}S
+        {% elif position == goal %}G
+        {% elif grid[row][column] == 1 %}#
+        {% else %}·{% endif %}
+      </td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+
+  <!-- Display results only after training. -->
+  {% if result %}
+    <h2>Training results</h2>
+    <p>Episodes: {{ result.episodes }}</p>
+    <p>Goal reached: {{ result.successes }} episodes</p>
+    <p>Mean reward over the last 100 episodes:
+      {{ result.final_average }}
+    </p>
+
+    <!-- Report whether evaluation reached the goal. -->
+    <h2>Evaluation without exploration</h2>
+    {% if result.reached_goal %}
+      <p>Goal reached in {{ result.steps|length }} moves!</p>
+    {% else %}
+      <p>The goal was not reached within 100 moves.</p>
+    {% endif %}
+
+    <!-- Display each evaluation step in a table row. -->
+    <div class="scroll">
+    <table>
+      <tr><th>Step</th><th>State</th><th>Action</th>
+          <th>Next state</th><th>Reward</th></tr>
+      {% for step_info in result.steps %}
+      <tr>
+        <td>{{ step_info.number }}</td><td>{{ step_info.state }}</td>
+        <td>{{ step_info.action }}</td><td>{{ step_info.next_state }}</td>
+        <td>{{ step_info.reward }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    </div>
+
+    <!-- Display four action values for each state. -->
+    <div class="scroll">
+    <table>
+      <tr><th>State</th>
+        {% for action in actions %}<th>{{ action }}</th>{% endfor %}
+      </tr>
+      {% for row in result.q_table %}
+      <tr><td>{{ row.state }}</td>
+        {% for value in row.action_values %}
+        <td>{{ '%.2f'|format(value) }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+    </div>
+  {% endif %}
+</body>
+</html>

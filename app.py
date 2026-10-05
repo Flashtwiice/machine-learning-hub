@@ -5,6 +5,7 @@ import logistic_regression_diabetes as logistic_regression
 import random_forest_purchase as random_forest
 import kmeans_manual
 import kmeans_energy
+from reinforcement import train, GRID, START, GOAL, ACTION_NAMES
 
 app = Flask(__name__)
 
@@ -229,6 +230,23 @@ def unsupervised_application():
         silhouette_label=kmeans_energy.interpret_silhouette(kmeans_energy.SILHOUETTE),
         rows=kmeans_energy.TABLE_ROWS,
         chart=kmeans_energy.generate_plot(),
+    )
+
+
+@app.route('/reinforcement', methods=['GET', 'POST'])
+def reinforcement():
+    result = None
+    if request.method == 'POST':
+        result = train(episodes=1000)
+ 
+    # Pass the result and grid settings to the template.
+    return render_template(
+        'reinforcement.html',
+        result=result,
+        grid=GRID,
+        start=START,
+        goal=GOAL,
+        actions=ACTION_NAMES,
     )
 
 
